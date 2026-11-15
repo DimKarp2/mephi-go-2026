@@ -1,6 +1,7 @@
 package spentenergy
 
 import (
+	"errors"
 	"time"
 )
 
@@ -12,18 +13,35 @@ const (
 	walkingCaloriesCoefficient = 0.5  // коэффициент для расчета калорий при ходьбе.
 )
 
+// WalkingSpentCalories рассчитывает расход калорий при ходьбе.
 func WalkingSpentCalories(steps int, weight, height float64, duration time.Duration) (float64, error) {
-	// TODO: реализовать функцию
+	calories, err := RunningSpentCalories(steps, weight, height, duration)
+	if err != nil {
+		return 0, err
+	}
+	return calories * walkingCaloriesCoefficient, nil
 }
 
+// RunningSpentCalories рассчитывает расход калорий при беге.
+// Возвращает ошибку, если параметры активности некорректны.
 func RunningSpentCalories(steps int, weight, height float64, duration time.Duration) (float64, error) {
-	// TODO: реализовать функцию
+	if steps <= 0 || weight <= 0 || height <= 0 || duration <= 0 {
+		return 0, errors.New("некорректные параметры активности")
+	}
+	return weight * MeanSpeed(steps, height, duration) * duration.Minutes() / minInH, nil
 }
 
+// MeanSpeed рассчитывает среднюю скорость в километрах в час.
+// При некорректных параметрах возвращает ноль.
 func MeanSpeed(steps int, height float64, duration time.Duration) float64 {
-	// TODO: реализовать функцию
+	if steps <= 0 || height <= 0 || duration <= 0 {
+		return 0
+	}
+	return Distance(steps, height) / duration.Hours()
 }
 
+// Distance рассчитывает пройденную дистанцию в километрах
+// по количеству шагов и росту пользователя.
 func Distance(steps int, height float64) float64 {
-	// TODO: реализовать функцию
+	return float64(steps) * height * stepLengthCoefficient / mInKm
 }
